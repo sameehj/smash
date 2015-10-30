@@ -2,6 +2,8 @@
 //********************************************
 #include "commands.h"
 //********************************************
+#define MAX_BUFF_SIZE 200
+//********************************************
 // function name: ExeCmd
 // Description: interperts and executes built-in commands
 // Parameters: pointer to JobList, pointer VarList, command string
@@ -34,13 +36,23 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 /*************************************************/
 	if (!strcmp(cmd, "cd") ) 
 	{
-		
+
 	} 
 	
 	/*************************************************/
 	else if (!strcmp(cmd, "pwd")) 
 	{
-		
+    char* cwd;
+    char buff[MAX_BUFF_SIZE + 1];
+    cwd = getcwd( buff, MAX_BUFF_SIZE + 1 );
+    if(cwd!=NULL)
+    {
+        printf("%s\n",buff);
+    }
+    else
+    {
+        perror("Pwd");
+    }
 	}
 	
 	/*************************************************/
@@ -154,6 +166,7 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
 					/* 
 					your code
 					*/
+            break;
 	}
 }
 //**************************************************************************************

@@ -20,76 +20,121 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	char* delimiters = " \t\n";  
 	int pID = 0, i = 0, num_arg = 0;
 	bool illegal_cmd = FALSE; // illegal command
-    	cmd = strtok(lineSize, delimiters);
+	cmd = strtok(lineSize, delimiters);
 	if (cmd == NULL)
 		return 0; 
-   	args[0] = cmd;
+	args[0] = cmd;
 	for (i=1; i<MAX_ARG; i++)
 	{
 		args[i] = strtok(NULL, delimiters); 
 		if (args[i] != NULL) 
 			num_arg++; 
- 
+
 	}
-/*************************************************/
-// Built in Commands
-/*************************************************/
+	/*************************************************/
+	// Built in Commands
+	/*************************************************/
 	if (!strcmp(cmd, "cd") ) 
 	{
 
+		if (num_arg == 1) 
+		{
+			// here your code runs the child process
+			pID = fork();
+			if( pID == 0 ) {
+				setpgrp(); // THIS IS THE COMMAND THAT EACH CHILD SHOULD
+				// EXECUTE, IT CHANGES THE GROUP ID
+				//    execv(...);// execute the needed process
+
+				// Handle execv error if you got to this line
+			} else if( pID>0) {
+				// Do parent - shell work here
+			} else {
+				// handle the fork error here
+				perror("cd");
+			}
+		}
+		else 
+		{
+			printf("cd error: only one argument is required!\n");	
+
+		}
 	} 
-	
+
 	/*************************************************/
 	else if (!strcmp(cmd, "pwd")) 
 	{
-    char* cwd;
-    char buff[MAX_BUFF_SIZE + 1];
-    cwd = getcwd( buff, MAX_BUFF_SIZE + 1 );
-    if(cwd!=NULL)
-    {
-        printf("%s\n",buff);
-    }
-    else
-    {
-        perror("Pwd");
-    }
+		if (num_arg == 0) 
+		{
+			// here your code runs the child process
+			pID = fork();
+			if( pID == 0 ) {
+				setpgrp(); // THIS IS THE COMMAND THAT EACH CHILD SHOULD
+				// EXECUTE, IT CHANGES THE GROUP ID
+				//    execv(...);// execute the needed process
+				char* cwd;
+				char buff[MAX_BUFF_SIZE + 1];
+				cwd = getcwd( buff, MAX_BUFF_SIZE + 1 );
+				if(cwd!=NULL)
+				{
+					printf("%s\n",buff);
+				}
+				else
+				{
+					perror("pwd");
+				}
+
+				// Handle execv error if you got to this line
+			} else if( pID>0) {
+				// Do parent - shell work here
+			} else {
+				// handle the fork error here
+				perror("Pwd");
+			}
+		}
+		else 
+		{
+			printf("pwd error: no arguments required!\n");	
+
+		}
+
 	}
-	
+
 	/*************************************************/
 	else if (!strcmp(cmd, "set"))
 	{
- 		
+
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "unset")) 
 	{
-	 	if (num_arg == 1) 
+		if (num_arg == 1) 
 		{
 			if (DelVar(pVarList, args[1]) != 0) 
 				printf("smash error: > \"%s\" - variable not found\n", args[1]);
-	  	} 
+		} 
 		else 
 			illegal_cmd = TRUE;
 	}
-		
+
 	/*************************************************/
 	else if (!strcmp(cmd, "show")) 
 	{
- 		if (num_arg <= 1) 
+		if (num_arg <= 1) 
 		{
-		        // Show all
-				if (args[1] == NULL) 
-					PrintVars(pVarList);
-				// print one var only
+			// Show all
+			if (args[1] == NULL) 
+				PrintVars(pVarList);
+			// print one var only
+			else 
+			{
+				val = GetVar(*pVarList, args[1]);
+				if (val == NULL) 
+					printf("smash error: > \"%s\" - variable not found\n", args[1]);
 				else 
-				{
-					val = GetVar(*pVarList, args[1]);
-					if (val == NULL) 
-						printf("smash error: > \"%s\" - variable not found\n", args[1]);
-					else 
-						printf("%s := %s\n", args[1], val);
-				}
- 		} 
+					printf("%s := %s\n", args[1], val);
+			}
+		} 
 		else 
 		{
 			illegal_cmd = TRUE;
@@ -98,40 +143,40 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	/*************************************************/
 	else if (!strcmp(cmd, "jobs")) 
 	{
- 		
+
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "showpid")) 
 	{
-		
+
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "fg")) 
 	{
-		
+
 	} 
 	/*************************************************/
 	else if (!strcmp(cmd, "bg")) 
 	{
-  		
+
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "quit"))
 	{
-   		
+
 	} 
 	/*************************************************/
 	else // external command
 	{
- 		ExeExternal(args, cmdString);
-	 	return 0;
+		ExeExternal(args, cmdString);
+		return 0;
 	}
 	if (illegal_cmd == TRUE)
 	{
 		printf("smash error: > \"%s\"\n", cmdString);
 		return 1;
 	}
-    return 0;
+	return 0;
 }
 //**************************************************************************************
 // function name: ExeExternal
@@ -142,31 +187,31 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 void ExeExternal(char *args[MAX_ARG], char* cmdString)
 {
 	int pID;
-    	switch(pID = fork()) 
+	switch(pID = fork()) 
 	{
-    		case -1: 
-					// Add your code here (error)
-					
-					/* 
-					your code
-					*/
-        	case 0 :
-                	// Child Process
-               		setpgrp();
-					
-			        // Add your code here (execute an external command)
-					
-					/* 
-					your code
-					*/
-			
-			default:
-                	// Add your code here
-					
-					/* 
-					your code
-					*/
-            break;
+		case -1: 
+			// Add your code here (error)
+
+			/* 
+			   your code
+			   */
+		case 0 :
+			// Child Process
+			setpgrp();
+
+			// Add your code here (execute an external command)
+
+			/* 
+			   your code
+			   */
+
+		default:
+			// Add your code here
+
+			/* 
+			   your code
+			   */
+			break;
 	}
 }
 //**************************************************************************************
@@ -180,13 +225,13 @@ int ExeComp(char* lineSize)
 	int pID;
 	char ExtCmd[MAX_LINE_SIZE+2];
 	char *args[MAX_ARG];
-    if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) || (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || (strstr(lineSize, "|&")))
-    {
+	if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) || (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || (strstr(lineSize, "|&")))
+	{
 		// Add your code here (execute a complicated command)
-					
+
 		/* 
-		your code
-		*/
+		   your code
+		   */
 	} 
 	return -1;
 }
@@ -206,11 +251,11 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 	{
 		lineSize[strlen(lineSize)-2] = '\0';
 		// Add your code here (execute a in the background)
-					
+
 		/* 
-		your code
-		*/
-		
+		   your code
+		   */
+
 	}
 	return -1;
 }

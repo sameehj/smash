@@ -35,38 +35,58 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	// Built in Commands
 	/*************************************************/
 	if (!strcmp(cmd, "cd") ) 
-	{
-		if (num_arg != 1){
-			illegal_cmd = TRUE;
-		}else {
-			getcwd(	pwd, MAX_LINE_SIZE);
+	{ 
+
+		if (num_arg == 1) {
+			getcwd(pwd, MAX_LINE_SIZE);
 			if (pwd == NULL){
 				exit(-1);
 			}
-			pwd[MAX_LINE_SIZE -1] = '\0';
 
-			if (strcmp(args[1],"-")!=0){
-				int result = chdir(args[1]);
-				if(result == -1){
+			else {
 
-					printf("smash error: > \"%s\" - path not found\n", args[1]);
-				}else{
-					strcpy(lastPwd , pwd);
+				pwd[MAX_LINE_SIZE-1]='\0';
+
+				if(strcmp(args[1],"-")==0){
+					if(lastPwd == NULL){
+						printf("cd: Error no previous path was found\n");
+					}
+					else {int res = chdir(lastPwd);
+						if(res == -1){
+							printf("smash error: > \"%s\" - path not found\n", lastPwd );      
+						}
+						else {
+							printf("%s\n",lastPwd);
+							strcpy(lastPwd , pwd);
+						}
+					}
+
+
 				}
 
-			} else { 
-				int result = chdir(lastPwd);
-				if(result == -1){
-					printf("smash error: > \"%s\" - path not found\n",lastPwd );
-				}else{
-					printf("%s\n",lastPwd);
-					strcpy(lastPwd , pwd);
+				else{
+					int res = chdir(args[1]);
+					if(res == -1){
+						printf("smash error: > \"%s\" - path not found\n", args[1] );    
+					} 
+					else {
+						strcpy(lastPwd , pwd);
+					}
+
 				}
+
+
 			}
-		}		
-	}
+		}
+		else  { illegal_cmd = TRUE;}
+	} 
+
+
+
 
 	/*************************************************/
+
+
 	else if (!strcmp(cmd, "pwd")) 
 	{
 		if (num_arg == 0) 

@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include "list.h"
 #include "vars.h"
@@ -22,6 +23,7 @@ int GPid;// PID (global)
 int Last_Bg_Pid;
 int Susp_Bg_Pid;
 char* L_Fg_Cmd;
+char* lastPwd;
 int susp; //is the process suspended: 0- no, 1- yes
 #endif
 

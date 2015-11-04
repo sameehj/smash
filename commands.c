@@ -2,7 +2,7 @@
 //********************************************
 #include "commands.h"
 //********************************************
-#define MAX_BUFF_SIZE 200
+#define MAX_BUFF_SIZE 10
 //********************************************
 // function name: ExeCmd
 // Description: interperts and executes built-in commands
@@ -36,76 +36,102 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	/*************************************************/
 	if (!strcmp(cmd, "cd") ) 
 	{
-
-		if (num_arg == 1) 
-		{
-			// here your code runs the child process
-			pID = fork();
-			if( pID == 0 ) {
-				setpgrp(); // THIS IS THE COMMAND THAT EACH CHILD SHOULD
-				// EXECUTE, IT CHANGES THE GROUP ID
-				//    execv(...);// execute the needed process
-				static char path[MAX_BUFF_SIZE + 1];
-				if (!strcmp(args[1], "-")){
-
-					if(chdir(args[1])==0){
-						printf("heey --");
-					}else{
-						perror("cd");
-					}
-				}else{
-					if(chdir(args[1])==0){
-						printf("wazafak");
-					}else{
-						perror("cd");
-					}
-
-
-				}
-				// Handle execv error if you got to this line
-			} else if( pID>0) {
-				// Do parent - shell work here
-			} else {
-				// handle the fork error here
-				perror("cd");
+		if (num_arg != 1){
+			illegal_cmd = TRUE;
+		}else {
+			getcwd(	pwd, MAX_LINE_SIZE);
+			if (pwd == NULL){
+				exit(-1);
 			}
-		}
-		else 
-		{
-			printf("cd error: only one argument is required!\n");	
+			pwd[MAX_LINE_SIZE -1] = '\0';
 
-		}
-	} 
+			if (strcmp(args[1],"-")!=0){
+				int result = chdir(args[1]);
+				if(result == -1){
+
+					printf("smash error: > \"%s\" - path not found\n", args[1]);
+				}else{
+					strcpy(lastPwd , pwd);
+				}
+
+			} else { 
+				int result = chdir(lastPwd);
+				if(result == -1){
+					printf("smash error: > \"%s\" - path not found\n",lastPwd );
+				}else{
+					printf("%s\n",lastPwd);
+					strcpy(lastPwd , pwd);
+				}
+			}
+		}		
+	}
 
 	/*************************************************/
 	else if (!strcmp(cmd, "pwd")) 
 	{
 		if (num_arg == 0) 
 		{
-				char* cwd;
-				char buff[MAX_BUFF_SIZE + 1];
-				cwd = getcwd( buff, MAX_BUFF_SIZE + 1 );
-				if(cwd!=NULL)
-				{
-					printf("%s\n",buff);
-				}
-				else
-				{
-					perror("pwd");
-				}
+			char* cwd;
+			char buff[MAX_LINE_SIZE + 1];
+			cwd = getcwd( buff, MAX_LINE_SIZE + 1 );
+			if(cwd!=NULL)
+			{
+				printf("%s\n",buff);
+			}
+			else
+			{
+				perror("pwd");
+			}
 
 		}
 		else 
 		{
-			printf("pwd error: no arguments required!\n");	
+			illegal_cmd = TRUE;
 		}
 
 	}
 
 	/*************************************************/
-	else if (!strcmp(cmd, "set"))
+	else if (!strcmp(cmd, "mkdir"))
 	{
 
+		if (num_arg == 1) 
+		{
+			char* cwd;
+			cwd = getcwd( pwd, MAX_LINE_SIZE + 1 );
+			if(cwd!=NULL)
+			{
+				char* path=malloc((strlen(pwd)+strlen(args[1]) + 1)*sizeof(char));
+				if(path){
+					strcpy(path,pwd);
+					strcat(path,"/");
+					strcat(path,args[1]);
+					int status=mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);	
+					if(status==-1){
+						struct stat status;
+
+						if (stat(path, &status) == 0 && S_ISDIR(status.st_mode))
+						{
+							printf("smash error: > %s - directory already exists\n", args[1] );
+						}else {
+							printf("smash error: > %s - cannot create directory\n", args[1] );
+						}	
+					}
+
+				}else{
+					printf("mkdir: malloc error");
+				}
+			}
+			else
+			{
+				perror("pwd");
+			}
+
+		}
+		else 
+		{
+			illegal_cmd = TRUE;
+		}
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "unset")) 

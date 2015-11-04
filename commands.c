@@ -45,7 +45,23 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 				setpgrp(); // THIS IS THE COMMAND THAT EACH CHILD SHOULD
 				// EXECUTE, IT CHANGES THE GROUP ID
 				//    execv(...);// execute the needed process
+				static char path[MAX_BUFF_SIZE + 1];
+				if (!strcmp(args[1], "-")){
 
+					if(chdir(args[1])==0){
+						printf("heey --");
+					}else{
+						perror("cd");
+					}
+				}else{
+					if(chdir(args[1])==0){
+						printf("wazafak");
+					}else{
+						perror("cd");
+					}
+
+
+				}
 				// Handle execv error if you got to this line
 			} else if( pID>0) {
 				// Do parent - shell work here
@@ -66,12 +82,6 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	{
 		if (num_arg == 0) 
 		{
-			// here your code runs the child process
-			pID = fork();
-			if( pID == 0 ) {
-				setpgrp(); // THIS IS THE COMMAND THAT EACH CHILD SHOULD
-				// EXECUTE, IT CHANGES THE GROUP ID
-				//    execv(...);// execute the needed process
 				char* cwd;
 				char buff[MAX_BUFF_SIZE + 1];
 				cwd = getcwd( buff, MAX_BUFF_SIZE + 1 );
@@ -84,18 +94,10 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 					perror("pwd");
 				}
 
-				// Handle execv error if you got to this line
-			} else if( pID>0) {
-				// Do parent - shell work here
-			} else {
-				// handle the fork error here
-				perror("Pwd");
-			}
 		}
 		else 
 		{
 			printf("pwd error: no arguments required!\n");	
-
 		}
 
 	}

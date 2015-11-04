@@ -139,7 +139,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 					}
 
 				}else{
-					printf("mkdir: malloc error");
+					printf("mkdir: malloc error\n");
 				}
 			}
 			else
@@ -196,7 +196,14 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	/*************************************************/
 	else if (!strcmp(cmd, "showpid")) 
 	{
+		if (num_arg == 0) 
+		{
+			printf("smash pid is %d\n",(int)getpid());
+		}
+		else{
+			illegal_cmd = TRUE;
 
+		}
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "fg")) 

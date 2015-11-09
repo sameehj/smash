@@ -199,14 +199,16 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 			int size = 0;
 			LIST_ELEMENT* jobs = *pJobsList;
 			time_t timenow = time(NULL);
+			LIST_ELEMENT* jobsArray[MAX_JOBS+1];
 			while (jobs){
 				size++;
+				jobsArray[size]=jobs;
 				jobs = jobs->pNext ;
 			}
 			jobs = *pJobsList;
 			int i;
 			for( i=1 ; i<=size ; i++){
-				printf("[%d] %s : %d %d secs", i, jobs->VarValue,	jobs->pID, (int)(timenow - jobs_start_time[i]));
+				printf("[%d] %s : %d %d secs", i, jobsArray[size+1-i]->VarValue,jobsArray[size+1-i]->pID, (int)(timenow - jobs_start_time[i]));
 				if (jobs->suspended == 1) {
 					printf(" (Stopped)");
 				}
@@ -333,7 +335,7 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 		if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) || (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || (strstr(lineSize, "|&")))
 		{
 			Command= lineSize;
-			args[0] = "/bin/bash";
+			args[0] = "/bin/csh";
 			args[1] = "-f";
 			args[2] = "-c";
 			args[3] = lineSize;
@@ -369,6 +371,11 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 				InsertElem(pJobsList,Command,globalId,pID,0);
 				jobs_start_time[globalId]=time(NULL);
 				globalId++;
+				LIST_ELEMENT * jobs = *pJobsList;
+				while (jobs){
+				printf("%s\n",jobs->VarValue);
+				jobs = jobs->pNext;
+				}
 				return 0;
 		}
 	}

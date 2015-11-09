@@ -242,30 +242,16 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 void ExeExternal(char *args[MAX_ARG], char* cmdString)
 {
 	int pID;
-	switch(pID = fork()) 
+	switch(pID = fork()) //TODO check if something needs to be added with bg commands
 	{
 		case -1: 
-			// Add your code here (error)
-
-			/* 
-			   your code
-			   */
+			perror(NULL);
 		case 0 :
 			// Child Process
-			setpgrp();
-
-			// Add your code here (execute an external command)
-
-			/* 
-			   your code
-			   */
-
-		default:
-			// Add your code here
-
-			/* 
-			   your code
-			   */
+			setpgrp();	
+			execvp(args[0],args);
+		default:	
+			waitpid(pID,NULL,WUNTRACED);
 			break;
 	}
 }

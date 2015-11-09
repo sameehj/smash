@@ -9,6 +9,10 @@
 // Parameters: pointer to JobList, pointer VarList, command string
 // Returns: 0 - success,1 - failure
 //**************************************************************************************
+
+int jobs_start_time[MAX_JOBS]={0};
+int globalId=1;
+
 int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, char* cmdString)
 {
 	LIST_ELEMENT* pElem;
@@ -202,7 +206,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 			jobs = *pJobsList;
 			int i;
 			for( i=1 ; i<=size ; i++){
-				printf("[%d] %s : %d %d secs", i, jobs->VarName,	jobs->pID, (int)(timenow - jobs_start_time[i]));
+				printf("[%d] %s : %d %d secs", i, jobs->VarValue,	jobs->pID, (int)(timenow - jobs_start_time[i]));
 				if (jobs->suspended == 1) {
 					printf(" (Stopped)");
 				}
@@ -235,6 +239,19 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	/*************************************************/
 	else if (!strcmp(cmd, "bg")) 
 	{
+		int pID;
+		switch(pID = fork()) 
+		{
+			case -1: 
+				perror(NULL);
+			case 0 :
+				// Child Process
+				setpgrp();	
+				execvp(args[0],args);
+			default:	
+				waitpid(pID,NULL,WUNTRACED);
+				break;
+		} 
 
 	}
 	/*************************************************/
@@ -313,12 +330,47 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 	if (lineSize[strlen(lineSize)-2] == '&')
 	{
 		lineSize[strlen(lineSize)-2] = '\0';
-		// Add your code here (execute a in the background)
+		if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) || (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || (strstr(lineSize, "|&")))
+		{
+			Command= lineSize;
+			args[0] = "/bin/bash";
+			args[1] = "-f";
+			args[2] = "-c";
+			args[3] = lineSize;
+			args[4] = NULL;
+		} else {
+			args[0]= strtok(lineSize, delimiters);
+			if (!args[0]){
+				return 0;
+			}
+			for (i=1; i<MAX_ARG; i++)
+			{
+				args[i] = strtok(NULL, delimiters); 
+			}
+			Command=args[0];
+		}
 
-		/* 
-		   your code
-		   */
-
+		printf("%s\n",Command);
+		switch(pID = fork()) 
+		{
+			case -1: 
+				perror(NULL);												
+				DelList(pJobsList);
+				exit(-1);
+			case 0 :
+				// Child Process
+				setpgrp();
+				if (execvp(args[0], args) == -1) {
+					perror(NULL);
+					exit(-1);
+				}
+				exit(-1);
+			default:
+				InsertElem(pJobsList,Command,globalId,pID,0);
+				jobs_start_time[globalId]=time(NULL);
+				globalId++;
+				return 0;
+		}
 	}
 	return -1;
 }

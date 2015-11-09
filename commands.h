@@ -26,5 +26,4 @@ int Susp_Bg_Pid;
 char* L_Fg_Cmd;
 int susp; //is the process suspended: 0- no, 1- yes
 char lastPwd[MAX_LINE_SIZE+1];
-int jobs_start_time[MAX_JOBS];
 #endif

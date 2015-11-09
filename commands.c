@@ -191,7 +191,29 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	/*************************************************/
 	else if (!strcmp(cmd, "jobs")) 
 	{
+		if(num_arg==0){
+			int size = 0;
+			LIST_ELEMENT* jobs = *pJobsList;
+			time_t timenow = time(NULL);
+			while (jobs){
+				size++;
+				jobs = jobs->pNext ;
+			}
+			jobs = *pJobsList;
+			int i;
+			for( i=1 ; i<=size ; i++){
+				printf("[%d] %s : %d %d secs", i, jobs->VarName,	jobs->pID, (int)(timenow - jobs_start_time[i]));
+				if (jobs->suspended == 1) {
+					printf(" (Stopped)");
+				}
+				printf("\n");
+				jobs = jobs->pNext ;
+			}
+		}
 
+
+		else { illegal_cmd = TRUE;
+		}
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "showpid")) 

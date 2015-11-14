@@ -242,19 +242,78 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	else if (!strcmp(cmd, "bg")) 
 	{
 		int pID;
-		switch(pID = fork()) 
+		if (num_arg == 0) 
 		{
-			case -1: 
-				perror(NULL);
-			case 0 :
-				// Child Process
-				setpgrp();	
-				execvp(args[0],args);
-			default:	
-				waitpid(pID,NULL,WUNTRACED);
-				break;
-		} 
+			if((*pJobsList)){
 
+				LIST_ELEMENT* jobs = *pJobsList;
+				while(jobs){
+					if(jobs->suspended==1){
+						if(kill(jobs->pID,SIGCONT)==-1){
+							perror(NULL);
+							DelList(pJobsList);
+							exit(-1);
+						}
+						printf("smash > signal SIGCONT was sent to pid %d \n",jobs->pID);
+						jobs->suspended = 0;
+						break;
+					}
+
+					jobs = jobs->pNext;
+				}
+
+
+
+				if (!jobs){
+					printf("There is no suspended job\n");
+					return -1;
+				}
+			}else{
+				printf("The jobs queue is empty\n");
+				return -1;
+			}
+		}
+		else if (num_arg ==1 ){
+			if((*pJobsList)){
+				int target_process_num=atoi(args[1]);
+				int size=0;
+				LIST_ELEMENT* jobs = *pJobsList;
+				while (jobs){
+					size++;
+					jobs = jobs->pNext ;
+				}
+				jobs = *pJobsList;
+				int i;
+				for( i=0 ; i<size ; i++){
+					if((size-i)==target_process_num)
+					{
+						break;
+					}
+					jobs = jobs->pNext ;
+				}
+				//jobs contains now the jobs to be changed to background
+				if (!jobs){
+					printf("There is no job with this index\n");
+					return -1;
+				}
+				if(jobs->suspended == 1){
+					if(kill(jobs->pID,SIGCONT)==-1){
+						perror(NULL);
+            DelList(pJobsList);								
+						exit(-1);
+					}
+					printf("smash > signal SIGCONT was sent to pid %d \n",jobs->pID);
+					jobs->suspended = 0;
+				}
+			}else{
+				printf("The jobs queue is empty\n");
+				return -1;
+			}
+		}
+		else
+		{
+			illegal_cmd = TRUE;
+		}
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "quit"))
@@ -372,9 +431,9 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 				jobs_start_time[globalId]=time(NULL);
 				globalId++;
 
-		return 0;
+				return 0;
+		}
 	}
-}
-return -1;
+	return -1;
 }
 

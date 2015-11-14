@@ -371,14 +371,10 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 				InsertElem(pJobsList,Command,globalId,pID,0);
 				jobs_start_time[globalId]=time(NULL);
 				globalId++;
-				LIST_ELEMENT * jobs = *pJobsList;
-				while (jobs){
-				printf("%s\n",jobs->VarValue);
-				jobs = jobs->pNext;
-				}
-				return 0;
-		}
+
+		return 0;
 	}
-	return -1;
+}
+return -1;
 }
 

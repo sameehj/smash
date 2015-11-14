@@ -242,8 +242,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 		} else {
 			if((*pJobsList)){
 				if(num_arg == 0){
-					pID = (*pJobsList)->pID;
-					printf("ke3343343433433333sk;l\n");					
+					pID = (*pJobsList)->pID;				
 					if((*pJobsList)->suspended){
 						if(kill(pID,SIGCONT)==-1){
 							perror(NULL);
@@ -278,9 +277,6 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 						}
 						jobs = jobs->pNext ;
 					}
-
-
-
 					pID = jobs->pID;							
 					if(jobs->suspended){
 						if(kill(pID,SIGCONT)==-1){
@@ -386,8 +382,61 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	/*************************************************/
 	else if (!strcmp(cmd, "quit"))
 	{
+		if (num_arg > 1 || (num_arg == 1 && strcmp(args[1],"kill")!=0)) 
+		{
+			illegal_cmd = TRUE;
+		}
+		else if (num_arg == 1)
+		{
+			LIST_ELEMENT* jobs = *pJobsList;
+			int index =1;
+			while(jobs){
+				bool flag = FALSE;
+				
+				int groupPid=(jobs)->pID;
+				time_t starttime=time(NULL);
+				printf("[%d] %s - Sending SIGTERM ...", index,(jobs)->VarValue);
+				index++;
+				if(kill(groupPid,SIGTERM)==-1){
+					perror(NULL);
+					free(L_Fg_Cmd);
+					DelList(pJobsList);	
+					exit(-1);
+				} else {
+					while(1){
+						if((int)(time(NULL)-starttime) >= 5){
+							flag = TRUE;
+							break;
+						} else {
+							if (groupPid != (jobs)->pID){
+							break;											
+						}
+							
 
-	} 
+						}
+					}
+					if (flag){
+						printf("(5 sec passed) Sending SIGKILL...");
+						if(kill(groupPid,SIGKILL)==-1){
+							perror(NULL);
+							free(L_Fg_Cmd);
+							DelList(pJobsList);
+							exit(-1);
+						} else {
+							printf("Done\n");
+						}
+					}
+				}
+				jobs = (jobs)->pNext;
+			}
+		}
+		else
+		{
+		free(L_Fg_Cmd);
+		DelList(pJobsList);
+		exit(-1);
+		}
+	}
 	/*************************************************/
 	else // external command
 	{

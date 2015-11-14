@@ -236,7 +236,75 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	/*************************************************/
 	else if (!strcmp(cmd, "fg")) 
 	{
+		int pID ,i;
+		if (num_arg > 1) {
+			illegal_cmd = TRUE;
+		} else {
+			if((*pJobsList)){
+				if(num_arg == 0){
+					pID = (*pJobsList)->pID;
+					printf("ke3343343433433333sk;l\n");					
+					if((*pJobsList)->suspended){
+						if(kill(pID,SIGCONT)==-1){
+							perror(NULL);
+							free(L_Fg_Cmd);							
+							DelList(pJobsList);
+							exit(-1);
+						}
+						printf("smash > signal SIGCONT was sent to pid %d \n",pID);
+					}
+					strcpy(L_Fg_Cmd, (*pJobsList)->VarValue);
+					GPid = pID;
+					printf("%s\n",L_Fg_Cmd);
+					DelPID(pJobsList, pID);
+					waitpid(pID, NULL, WUNTRACED);
+					GPid = -1;
 
+
+				}else {
+					int target_process_num=atoi(args[1]);
+					int size=0;
+					LIST_ELEMENT* jobs = *pJobsList;
+					while (jobs){
+						size++;
+						jobs = jobs->pNext ;
+					}
+					jobs = *pJobsList;
+					int i;
+					for( i=0 ; i<size ; i++){
+						if((size-i)==target_process_num)
+						{
+							break;
+						}
+						jobs = jobs->pNext ;
+					}
+
+
+
+					pID = jobs->pID;							
+					if(jobs->suspended){
+						if(kill(pID,SIGCONT)==-1){
+							perror(NULL);												
+							free(L_Fg_Cmd);
+							DelList(pJobsList);
+							exit(-1);
+						}
+						printf("smash > signal SIGCONT was sent to pid %d \n",pID);
+					}
+					strcpy(L_Fg_Cmd, jobs->VarValue);
+					GPid = pID;
+					printf("%s\n",L_Fg_Cmd);
+					//ttime=temp->ttime;
+					DelPID(pJobsList, pID);
+					waitpid(pID, NULL, WUNTRACED);
+					GPid = -1;
+				}
+
+			}else{
+				printf("There are no jobs\n");
+				return -1;
+			}
+		}
 	} 
 	/*************************************************/
 	else if (!strcmp(cmd, "bg")) 
@@ -299,7 +367,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 				if(jobs->suspended == 1){
 					if(kill(jobs->pID,SIGCONT)==-1){
 						perror(NULL);
-            DelList(pJobsList);								
+						DelList(pJobsList);								
 						exit(-1);
 					}
 					printf("smash > signal SIGCONT was sent to pid %d \n",jobs->pID);

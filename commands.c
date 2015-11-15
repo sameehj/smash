@@ -210,7 +210,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 			for( i=1 ; i<=size ; i++){
 				//printf("[%d] %s : %d %d secs", i, jobsArray[size+1-i]->VarValue,jobsArray[size+1-i]->pID, (int)(timenow - jobs_start_time[i]));
         printf("[%d] %s : %d %d secs", i, jobsArray[size+1-i]->VarValue,jobsArray[size+1-i]->pID, (int)(timenow - jobsArray[size+1-i]->time));
-				if (jobs->suspended == 1) {
+				if (jobsArray[size+1-i]->suspended == 1) {
 					printf(" (Stopped)");
 				}
 				printf("\n");

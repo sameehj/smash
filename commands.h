@@ -16,12 +16,13 @@
 #define MAX_JOBS 10
 pNode stack_head;
 typedef enum { FALSE , TRUE } bool;
-int ExeComp(char* lineSize);
+int ExeComp(char* lineSize, LIST_ELEMENT** pJobsList);
 int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList);
 int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, char* cmdString);
 void ExeExternal(char *args[MAX_ARG], char* cmdString);
 int GPid;// PID (global)
 int Last_Bg_Pid;
+
 int Susp_Bg_Pid;
 char* L_Fg_Cmd;
 int susp; //is the process suspended: 0- no, 1- yes

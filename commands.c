@@ -465,11 +465,18 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
 			perror(NULL);
 		case 0 :
 			// Child Process
-			setpgrp();	
-			execvp(args[0],args);
+               		setpgrp();// THIS IS THE COMMAND THAT EACH CHILD SHOULD
+								// EXECUTE, IT CHANGES THE GROUP ID
+					if (execvp(args[0], args) == -1) {	
+					perror(NULL); 
+					exit(-1);
+					}
+					break;
 		default:	
-			waitpid(pID,NULL,WUNTRACED);
-			break;
+					GPid = pID;
+					//ttime=time(NULL);
+					waitpid(pID, NULL, WUNTRACED);
+					GPid = -1;
 	}
 }
 //**************************************************************************************
@@ -478,19 +485,30 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
 // Parameters: command string
 // Returns: 0- if complicated -1- if not
 //**************************************************************************************
-int ExeComp(char* lineSize)
+int ExeComp(char* lineSize, LIST_ELEMENT** pJobsList)
 {
 	int pID;
 	char ExtCmd[MAX_LINE_SIZE+2];
 	char *args[MAX_ARG];
 	if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) || (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || (strstr(lineSize, "|&")))
 	{
-		// Add your code here (execute a complicated command)
+				args[0] = "/bin/csh";
+				args[1] = "-f";
+				args[2] = "-c";
+				args[3] = lineSize;
+				args[4] = NULL;
+				if(	BgCmd(lineSize, pJobsList) != 0){				
+					strcpy(L_Fg_Cmd,lineSize );
+					L_Fg_Cmd[strlen(L_Fg_Cmd)-1]='\0';
+					ExeExternal(args, NULL);
+				}
+				
+				
+				return 0;
 
-		/* 
-		   your code
-		   */
-	} 
+					
+					
+	}
 	return -1;
 }
 //**************************************************************************************

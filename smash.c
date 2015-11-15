@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 					// replace $variable with it's value:
 		if(VarRplc(VarList, lineSize)) continue; 
 					// perform a complicated Command
-		if(!ExeComp(lineSize)) continue; 
+		if(!ExeComp(lineSize, &JobsList)) continue; 
 					// background command	
 	 	if(!BgCmd(lineSize, &JobsList)) continue; 
 					// built in commands

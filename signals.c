@@ -59,7 +59,7 @@ void signal_handler(int signum) {
 					L_Fg_Cmd[0] = '\0';
 
 				}
-			} 
+			}
 		break;
 		
 		

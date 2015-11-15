@@ -258,8 +258,6 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 					DelPID(pJobsList, pID);
 					waitpid(pID, NULL, WUNTRACED);
 					GPid = -1;
-
-
 				}else {
 					int target_process_num=atoi(args[1]);
 					int size=0;
@@ -280,7 +278,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 					pID = jobs->pID;							
 					if(jobs->suspended){
 						if(kill(pID,SIGCONT)==-1){
-							perror(NULL);												
+							perror(NULL);			
 							free(L_Fg_Cmd);
 							DelList(pJobsList);
 							exit(-1);
@@ -453,7 +451,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 		{
 			illegal_cmd = TRUE;
 		}
-		else if (num_arg == 1)
+		else if (num_arg == 1 && (*pJobsList))
 		{
 			LIST_ELEMENT* jobs = *pJobsList;
 			int index =1;

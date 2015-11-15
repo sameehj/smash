@@ -12,7 +12,7 @@
 // Parameters: pointer to list, value to store, serial number, PID, suspended flag 
 // Returns: 0- success, 1- failure
 //**************************************************************************************
-int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp)
+int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp,time_t time)
 {
 	LIST_ELEMENT *List;
 	LIST_ELEMENT *temp;
@@ -34,6 +34,7 @@ int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp)
 		List->ID = ID;
 		List->pID = pID;
 		List->suspended = susp;
+    List->time=time;
 		List->pNext = NULL;
 		*pList = List;
 		return 0;
@@ -41,7 +42,7 @@ int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp)
 	else 
 	{    
 		if (List->ID == ID) 
-			return InsertElem(&List->pNext, value, ID+1, pID, susp);
+			return InsertElem(&List->pNext, value, ID+1, pID, susp,time);
 		else
 		{
 			temp = (LIST_ELEMENT*)malloc(sizeof(LIST_ELEMENT)); 
@@ -56,6 +57,7 @@ int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp)
 			temp->ID = List->ID;
 			temp->suspended = List->suspended;
 			temp->pNext = List->pNext;
+      temp->time = List->time;
 			 
 			free(List->VarValue);
 			List->VarValue=(char*)malloc(sizeof(char)*(strlen(value)+1));
@@ -66,6 +68,7 @@ int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp)
 			List->pID = pID;
 			List->suspended = susp;
 			List->pNext = temp;
+      List->time=time;
   			return 0;
 		}
 	}

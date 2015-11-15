@@ -14,6 +14,7 @@ extern int susp;
 extern LIST_ELEMENT* JobsList;
 extern char* L_Fg_Cmd;
 extern int globalId;
+extern time_t ttime;
 //extern int jobs_start_time[MAX_JOBS];
 //extern char lastPwd[MAX_LINE_SIZE+1];
 
@@ -31,7 +32,7 @@ void signal_handler(int signum) {
 							exit(-1);
 				} else {
 					printf("smash > signal SIGTSTP was sent to pid %d\n",GPid);
-					InsertElem(&JobsList,L_Fg_Cmd, globalId ,GPid ,1);
+					InsertElem(&JobsList,L_Fg_Cmd, globalId ,GPid ,1,ttime);
 					GPid = -1;
 					L_Fg_Cmd[0] = '\0';
 

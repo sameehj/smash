@@ -208,7 +208,8 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 			jobs = *pJobsList;
 			int i;
 			for( i=1 ; i<=size ; i++){
-				printf("[%d] %s : %d %d secs", i, jobsArray[size+1-i]->VarValue,jobsArray[size+1-i]->pID, (int)(timenow - jobs_start_time[i]));
+				//printf("[%d] %s : %d %d secs", i, jobsArray[size+1-i]->VarValue,jobsArray[size+1-i]->pID, (int)(timenow - jobs_start_time[i]));
+        printf("[%d] %s : %d %d secs", i, jobsArray[size+1-i]->VarValue,jobsArray[size+1-i]->pID, (int)(timenow - jobsArray[size+1-i]->time));
 				if (jobs->suspended == 1) {
 					printf(" (Stopped)");
 				}
@@ -255,6 +256,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 					strcpy(L_Fg_Cmd, (*pJobsList)->VarValue);
 					GPid = pID;
 					printf("%s\n",L_Fg_Cmd);
+          ttime=(*pJobsList)->time;
 					DelPID(pJobsList, pID);
 					waitpid(pID, NULL, WUNTRACED);
 					GPid = -1;
@@ -288,7 +290,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 					strcpy(L_Fg_Cmd, jobs->VarValue);
 					GPid = pID;
 					printf("%s\n",L_Fg_Cmd);
-					//ttime=temp->ttime;
+					  ttime=(jobs)->time;
 					DelPID(pJobsList, pID);
 					waitpid(pID, NULL, WUNTRACED);
 					GPid = -1;
@@ -433,9 +435,9 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 						int id_temp = jobs->ID;
 						char* name = (char*) malloc(	sizeof(char) * (strlen(jobs->VarValue) + 1));
 						strcpy(name,jobs->VarValue);
-						//		time_t ttimetemp=tempjob->ttime;
+						time_t ttimetemp=jobs->time;
 						DelPID(pJobsList, pid_temp);
-						InsertElem(pJobsList, name ,id_temp ,pid_temp ,1 );
+						InsertElem(pJobsList, name ,id_temp ,pid_temp ,1 ,ttimetemp);
 						free(name);
 					}
 				}
@@ -468,7 +470,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 					DelList(pJobsList);	
 					exit(-1);
 				} else {
-					while(1){
+					while(!(kill(groupPid,0))){
 						if((int)(time(NULL)-starttime) >= 5){
 							flag = TRUE;
 							break;
@@ -476,12 +478,10 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 							if (groupPid != (jobs)->pID){
 								break;											
 							}
-
-
 						}
 					}
 					if (flag){
-						printf("(5 sec passed) Sending SIGKILL...");
+						printf("(5 sec passed) Sending SIGKILL...\n");
 						if(kill(groupPid,SIGKILL)==-1){
 							perror(NULL);
 							free(L_Fg_Cmd);
@@ -490,17 +490,17 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 						} else {
 							printf("Done\n");
 						}
-					}
+					}else{
+ 							printf("Done\n");               
+        }
 				}
 				jobs = (jobs)->pNext;
 			}
 		}
-		else
-		{
+
 			free(L_Fg_Cmd);
 			DelList(pJobsList);
 			exit(-1);
-		}
 	}
 	/*************************************************/
 	else // external command
@@ -539,7 +539,7 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
 			break;
 		default:	
 			GPid = pID;
-			//ttime=time(NULL);
+			ttime=time(NULL);
 			waitpid(pID, NULL, WUNTRACED);
 			GPid = -1;
 	}
@@ -627,7 +627,8 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 				}
 				exit(-1);
 			default:
-				InsertElem(pJobsList,Command,globalId,pID,0);
+      
+				InsertElem(pJobsList,Command,globalId,pID,0,time(NULL));
 				jobs_start_time[globalId]=time(NULL);
 				globalId++;
 

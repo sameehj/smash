@@ -7,6 +7,7 @@ typedef struct _LIST_ELEMENT
     	char* VarValue;
 	int ID;
 	int pID;
+  time_t time;
     	int suspended;
     	struct _LIST_ELEMENT* pNext;
 } LIST_ELEMENT;   
@@ -18,7 +19,7 @@ typedef node *pNode;
 pNode Push(pNode stack_head, char* Dir);
 pNode Pop(pNode stack_head);
 int DelPID(LIST_ELEMENT** pList, int pID);
-int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp);
+int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp,time_t time);
 int DelList(LIST_ELEMENT** pList);
 char* GetVar(LIST_ELEMENT* List, char* varname);
 int ModifyElem(LIST_ELEMENT** pList, char* varname, char* value);

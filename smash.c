@@ -17,6 +17,7 @@ main file. This file contains the main function of smash
 extern int GPid;// PID (global)
 extern int Last_Bg_Pid;
 extern int Susp_Bg_Pid;
+extern time_t ttime;
 extern char* L_Fg_Cmd;
 extern int susp; //is the process suspended: 0- no, 1- yes
 LIST_ELEMENT* JobsList = NULL;

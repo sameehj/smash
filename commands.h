@@ -22,7 +22,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 void ExeExternal(char *args[MAX_ARG], char* cmdString);
 int GPid;// PID (global)
 int Last_Bg_Pid;
-
+time_t ttime;
 int Susp_Bg_Pid;
 char* L_Fg_Cmd;
 int susp; //is the process suspended: 0- no, 1- yes

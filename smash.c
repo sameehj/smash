@@ -30,16 +30,15 @@ int main(int argc, char *argv[])
     char cmdString[MAX_LINE_SIZE]; 	   
     LIST_ELEMENT* VarList = NULL;
 	
-	//signal declaretions
-	//NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
-	 /* add your code here */
-	
-	/************************************/
-	//NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
-	//set your signal handlers here
-	/* add your code here */
-
-	/************************************/
+    if(signal(SIGTSTP,signal_handler) == SIG_ERR){
+    	printf("SIGTSTP  == SIG_ERR\n");
+    }
+    if(signal(SIGINT,signal_handler) == SIG_ERR){
+    	printf("SIGINT  == SIG_ERR\n");
+    }
+    if(signal(SIGCHLD,signal_handler) == SIG_ERR){
+    	printf("SIGCHLD  == SIG_ERR\n");
+    }
 
 	/************************************/
 	// Init globals 

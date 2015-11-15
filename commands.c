@@ -380,6 +380,73 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 		}
 	}
 	/*************************************************/
+
+	else if (!strcmp(cmd, "kill"))
+	{
+		if (num_arg !=2) {
+			illegal_cmd = TRUE;
+		}
+
+
+		else {
+			int target_job_num=atoi(args[2]);
+
+			int new_size=0;
+			LIST_ELEMENT* jobs = *pJobsList;
+			while (jobs){
+				new_size++;
+				jobs = jobs->pNext ;
+			}
+			jobs = *pJobsList;
+			int i;
+			for( i=0 ; i<new_size ; i++){
+				if((new_size-i)==target_job_num)
+				{
+					break;
+				}
+				jobs = jobs->pNext ;
+			}
+
+
+			bool flag=TRUE;
+			if(new_size==0 || new_size < target_job_num ){
+				flag=FALSE;
+			}
+
+			if(flag==FALSE){
+				printf("smash error:> kill %d-job does not exist\n", target_job_num);
+
+			}else{
+				int signum=atoi(args[1]+1);
+				if(kill(jobs->pID,signum)==-1){
+					perror(NULL);												
+					free(L_Fg_Cmd);
+					DelList(pJobsList);
+					exit(-1);
+
+				}else{
+
+					printf("smash > signal signum=%d was sent to pid %d\n",signum,jobs->pID);
+					if(signum == SIGCONT){
+						jobs->suspended=0;
+					}
+					if(signum == SIGTSTP){
+						int pid_temp=jobs->pID;
+						int id_temp = jobs->ID;
+						char* name = (char*) malloc(	sizeof(char) * (strlen(jobs->VarValue) + 1));
+						strcpy(name,jobs->VarValue);
+						//		time_t ttimetemp=tempjob->ttime;
+						DelPID(pJobsList, pid_temp);
+						InsertElem(pJobsList, name ,id_temp ,pid_temp ,1 );
+						free(name);
+					}
+				}
+			}
+		}
+
+	} 
+	/*************************************************/
+
 	else if (!strcmp(cmd, "quit"))
 	{
 		if (num_arg > 1 || (num_arg == 1 && strcmp(args[1],"kill")!=0)) 
@@ -392,7 +459,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 			int index =1;
 			while(jobs){
 				bool flag = FALSE;
-				
+
 				int groupPid=(jobs)->pID;
 				time_t starttime=time(NULL);
 				printf("[%d] %s - Sending SIGTERM ...", index,(jobs)->VarValue);
@@ -409,9 +476,9 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 							break;
 						} else {
 							if (groupPid != (jobs)->pID){
-							break;											
-						}
-							
+								break;											
+							}
+
 
 						}
 					}
@@ -432,9 +499,9 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 		}
 		else
 		{
-		free(L_Fg_Cmd);
-		DelList(pJobsList);
-		exit(-1);
+			free(L_Fg_Cmd);
+			DelList(pJobsList);
+			exit(-1);
 		}
 	}
 	/*************************************************/
@@ -465,18 +532,18 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
 			perror(NULL);
 		case 0 :
 			// Child Process
-               		setpgrp();// THIS IS THE COMMAND THAT EACH CHILD SHOULD
-								// EXECUTE, IT CHANGES THE GROUP ID
-					if (execvp(args[0], args) == -1) {	
-					perror(NULL); 
-					exit(-1);
-					}
-					break;
+			setpgrp();// THIS IS THE COMMAND THAT EACH CHILD SHOULD
+			// EXECUTE, IT CHANGES THE GROUP ID
+			if (execvp(args[0], args) == -1) {	
+				perror(NULL); 
+				exit(-1);
+			}
+			break;
 		default:	
-					GPid = pID;
-					//ttime=time(NULL);
-					waitpid(pID, NULL, WUNTRACED);
-					GPid = -1;
+			GPid = pID;
+			//ttime=time(NULL);
+			waitpid(pID, NULL, WUNTRACED);
+			GPid = -1;
 	}
 }
 //**************************************************************************************
@@ -492,22 +559,22 @@ int ExeComp(char* lineSize, LIST_ELEMENT** pJobsList)
 	char *args[MAX_ARG];
 	if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) || (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || (strstr(lineSize, "|&")))
 	{
-				args[0] = "/bin/csh";
-				args[1] = "-f";
-				args[2] = "-c";
-				args[3] = lineSize;
-				args[4] = NULL;
-				if(	BgCmd(lineSize, pJobsList) != 0){				
-					strcpy(L_Fg_Cmd,lineSize );
-					L_Fg_Cmd[strlen(L_Fg_Cmd)-1]='\0';
-					ExeExternal(args, NULL);
-				}
-				
-				
-				return 0;
+		args[0] = "/bin/csh";
+		args[1] = "-f";
+		args[2] = "-c";
+		args[3] = lineSize;
+		args[4] = NULL;
+		if(	BgCmd(lineSize, pJobsList) != 0){				
+			strcpy(L_Fg_Cmd,lineSize );
+			L_Fg_Cmd[strlen(L_Fg_Cmd)-1]='\0';
+			ExeExternal(args, NULL);
+		}
 
-					
-					
+
+		return 0;
+
+
+
 	}
 	return -1;
 }

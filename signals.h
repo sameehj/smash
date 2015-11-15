@@ -9,7 +9,7 @@
 #include <signal.h>
 #include "list.h"
 
-
+void signal_handler(int signum);
 
 #endif
 

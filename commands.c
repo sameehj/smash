@@ -15,14 +15,12 @@ int globalId=1;
 
 int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, char* cmdString)
 {
-	LIST_ELEMENT* pElem;
-	LIST_ELEMENT* pElem_curr;
 	char* cmd; 
 	char* args[MAX_ARG];
 	char *val;
 	char pwd[MAX_LINE_SIZE];
 	char* delimiters = " \t\n";  
-	int pID = 0, i = 0, num_arg = 0;
+	int i = 0, num_arg = 0;
 	bool illegal_cmd = FALSE; // illegal command
 	cmd = strtok(lineSize, delimiters);
 	if (cmd == NULL)
@@ -237,7 +235,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	/*************************************************/
 	else if (!strcmp(cmd, "fg")) 
 	{
-		int pID ,i;
+		int pID;
 		if (num_arg > 1) {
 			illegal_cmd = TRUE;
 		} else {
@@ -305,7 +303,6 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	/*************************************************/
 	else if (!strcmp(cmd, "bg")) 
 	{
-		int pID;
 		if (num_arg == 0) 
 		{
 			if((*pJobsList)){
@@ -552,8 +549,6 @@ void ExeExternal(char *args[MAX_ARG], char* cmdString)
 //**************************************************************************************
 int ExeComp(char* lineSize, LIST_ELEMENT** pJobsList)
 {
-	int pID;
-	char ExtCmd[MAX_LINE_SIZE+2];
 	char *args[MAX_ARG];
 	if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) || (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || (strstr(lineSize, "|&")))
 	{
